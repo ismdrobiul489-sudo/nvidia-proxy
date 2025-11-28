@@ -1,7 +1,9 @@
 export default async function handler(req, res) {
+  // Fixed model endpoint
+  const invokeUrl = "https://ai.api.nvidia.com/v1/genai/stabilityai/stable-diffusion-3-medium";
   const apiKey = process.env.NVIDIA_API_KEY;
 
-  // Allow CORS so browser clients can call directly
+  // Allow CORS for browser clients
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -10,14 +12,12 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Client must send full payload (model, prompt, etc.)
-  const { model, ...payload } = req.body || {};
+  // Client must send prompt/width/height etc.
+  const payload = req.body;
 
-  if (!model) {
-    return res.status(400).json({ error: "Missing 'model' in request body" });
+  if (!payload || !payload.prompt) {
+    return res.status(400).json({ error: "Missing 'prompt' in request body" });
   }
-
-  const invokeUrl = `https://ai.api.nvidia.com/v1/genai/${model}`;
 
   try {
     const response = await fetch(invokeUrl, {
