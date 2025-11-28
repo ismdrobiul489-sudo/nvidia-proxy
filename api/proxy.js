@@ -1,17 +1,23 @@
 export default async function handler(req, res) {
-  const invokeUrl = "https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-schnell";
-
-  // Read API key from environment variables
   const apiKey = process.env.NVIDIA_API_KEY;
 
-  // Use client payload if provided, otherwise default values
-  const payload = req.body || {
-    prompt: "a simple coffee shop interior",
-    width: 1024,
-    height: 1024,
-    seed: 0,
-    steps: 4
-  };
+  // Allow CORS so browser clients can call directly
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // Client must send full payload (model, prompt, etc.)
+  const { model, ...payload } = req.body || {};
+
+  if (!model) {
+    return res.status(400).json({ error: "Missing 'model' in request body" });
+  }
+
+  const invokeUrl = `https://ai.api.nvidia.com/v1/genai/${model}`;
 
   try {
     const response = await fetch(invokeUrl, {
