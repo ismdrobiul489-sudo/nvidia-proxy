@@ -1,23 +1,41 @@
 export default async function handler(req, res) {
-  const apiKey = process.env.NVIDIA_API_KEY; // Vercel Secrets থেকে পড়বে
-  const { model, payload } = req.body;       // কোন মডেল কল করবেন, সেই নাম ও ডেটা
+  const invokeUrl = "https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-schnell";
 
-  // NVIDIA NIM endpoint URL গঠন
-  const apiUrl = `https://api.nvidia.com/v1/${model}/predict`;
+  // Read API key from environment variables
+  const apiKey = process.env.NVIDIA_API_KEY;
+
+  // Use client payload if provided, otherwise default values
+  const payload = req.body || {
+    prompt: "a simple coffee shop interior",
+    width: 1024,
+    height: 1024,
+    seed: 0,
+    steps: 4
+  };
 
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch(invokeUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
+        "Accept": "application/json",
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
-    res.status(200).json(data);
+    if (!response.ok) {
+      const errBody = await response.text();
+      return res.status(response.status).json({
+        error: `Invocation failed with status ${response.status}`,
+        details: errBody
+      });
+    }
+
+    const responseBody = await response.json();
+    return res.status(200).json(responseBody);
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 }
