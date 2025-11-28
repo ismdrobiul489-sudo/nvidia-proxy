@@ -1,0 +1,11 @@
+{
+  "name": "nvidia-proxy",
+  "version": "1.0.0",
+  "main": "api/proxy.js",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
