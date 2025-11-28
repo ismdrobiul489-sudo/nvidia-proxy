@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Fixed model endpoint
-  const invokeUrl = "https://ai.api.nvidia.com/v1/genai/stabilityai/stable-diffusion-3-medium";
+  const invokeUrl = "https://ai.api.nvidia.com/v1/genai/black-forest-labs/flux.1-dev";
   const apiKey = process.env.NVIDIA_API_KEY;
 
   // Allow CORS for browser clients
